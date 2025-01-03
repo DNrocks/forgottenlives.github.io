@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Forgotten Lives</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .candle {
+            cursor: pointer;
+            width: 60px;
+            height: 100px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Small_flame_candle.jpg/220px-Small_flame_candle.jpg') no-repeat center;
+            background-size: cover;
+            border: none;
+        }
+
+        .slider {
+            width: 80%;
+        }
+
+        .question {
+            margin: 20px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="screen1" class="container">
+        <h1>Recall a Forgotten Memory</h1>
+        <p>Think about something lost amidst life: a book, friend, toy, goal, or anything else. Let it come to mind.</p>
+        <button class="candle" onclick="nextScreen(2)"></button>
+    </div>
+
+    <div id="screen2" class="container hidden">
+        <h1>When Did This Happen?</h1>
+        <p>Move the slider to indicate the age when this forgotten thing occurred.</p>
+        <input type="range" class="slider" min="0" max="100" step="1" value="25">
+        <button class="candle" onclick="nextScreen(3)"></button>
+    </div>
+
+    <div id="screen3" class="container hidden">
+        <h1>Tell Us About the Memory</h1>
+        <p>Answer the following questions about your memory:</p>
+        <div class="question">
+            <label>Is it a sad memory?</label>
+            <select>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        <div class="question">
+            <label>Are you satisfied with the outcome?</label>
+            <select>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        <div class="question">
+            <label>Do you wish it was still a part of your life?</label>
+            <select>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+        </div>
+        <button class="candle" onclick="nextScreen(4)"></button>
+    </div>
+
+    <div id="screen4" class="container hidden">
+        <h1>Describe Your Memory</h1>
+        <p>Share as much detail as you can, including trivial aspects of the memory.</p>
+        <textarea rows="6" cols="50" placeholder="Write about your memory here..."></textarea>
+        <button class="candle" onclick="alert('Story generation will happen next!')"></button>
+    </div>
+
+    <script>
+        function nextScreen(screenNumber) {
+            const screens = document.querySelectorAll('.container');
+            screens.forEach(screen => screen.classList.add('hidden'));
+            document.getElementById(`screen${screenNumber}`).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
