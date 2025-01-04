@@ -31,16 +31,68 @@
             color: #fff;
         }
 
-        .slider {
+        .slider-container {
+            position: relative;
             width: 80%;
         }
 
-        .question {
-            margin: 20px 0;
+        .slider {
+            width: 100%;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .questions-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+            width: 80%;
+        }
+
+        .questions-container div {
+            text-align: center;
+        }
+
+        .questions-container button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            background: #3b5998;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .questions-container button:hover {
+            background: #1e3c72;
+        }
+
+        .questions-container button.active {
+            background: #ff9800; /* Highlight color for selected button */
+            color: #000; /* Text color for visibility */
         }
 
         .hidden {
             display: none;
+        }
+
+        textarea {
+            width: 80%;
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -54,33 +106,32 @@
     <div id="screen2" class="container hidden">
         <h1>When Did This Happen?</h1>
         <p>Move the slider to indicate the age when this forgotten thing occurred.</p>
-        <input type="range" class="slider" min="0" max="100" step="1" value="25">
+        <div class="slider-container">
+            <span id="sliderValue" class="slider-value">25</span>
+            <input type="range" id="ageSlider" class="slider" min="0" max="100" step="1" value="25" oninput="updateSliderValue()">
+        </div>
         <button class="candle" onclick="nextScreen(3)">🔥</button>
     </div>
 
     <div id="screen3" class="container hidden">
         <h1>Tell Us About the Memory</h1>
         <p>Answer the following questions about your memory:</p>
-        <div class="question">
-            <label>Is it a sad memory?</label>
-            <select>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </select>
-        </div>
-        <div class="question">
-            <label>Are you satisfied with the outcome?</label>
-            <select>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </select>
-        </div>
-        <div class="question">
-            <label>Do you wish it was still a part of your life?</label>
-            <select>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </select>
+        <div class="questions-container">
+            <div>
+                <p>Is it a happy memory?</p>
+                <button onclick="selectOption(this, 'memoryEmotion', 'Happy')">Yes</button>
+                <button onclick="selectOption(this, 'memoryEmotion', 'Not Happy')">No</button>
+            </div>
+            <div>
+                <p>Are you satisfied with the outcome?</p>
+                <button onclick="selectOption(this, 'satisfaction', 'Satisfied')">Yes</button>
+                <button onclick="selectOption(this, 'satisfaction', 'Not Satisfied')">No</button>
+            </div>
+            <div>
+                <p>Do you wish it was still a part of your life?</p>
+                <button onclick="selectOption(this, 'desire', 'Yes')">Yes</button>
+                <button onclick="selectOption(this, 'desire', 'No')">No</button>
+            </div>
         </div>
         <button class="candle" onclick="nextScreen(4)">🔥</button>
     </div>
@@ -88,15 +139,54 @@
     <div id="screen4" class="container hidden">
         <h1>Describe Your Memory</h1>
         <p>Share as much detail as you can, including trivial aspects of the memory.</p>
-        <textarea rows="6" cols="50" placeholder="Write about your memory here..."></textarea>
-        <button class="candle" onclick="alert('Story generation will happen next!')">🔥</button>
+        <textarea id="memoryDescription" rows="6" cols="50" placeholder="Write about your memory here..."></textarea>
+        <button class="candle" onclick="generateStory()">🔥</button>
     </div>
 
     <script>
+        const userInputs = {
+            age: null,
+            memoryEmotion: null,
+            satisfaction: null,
+            desire: null,
+            memoryDescription: null
+        };
+
         function nextScreen(screenNumber) {
             const screens = document.querySelectorAll('.container');
             screens.forEach(screen => screen.classList.add('hidden'));
             document.getElementById(`screen${screenNumber}`).classList.remove('hidden');
+        }
+
+        function updateSliderValue() {
+            const slider = document.getElementById('ageSlider');
+            const sliderValue = document.getElementById('sliderValue');
+            sliderValue.textContent = slider.value;
+            const sliderContainer = slider.parentElement;
+            const sliderWidth = slider.offsetWidth;
+            const valuePosition = (slider.value - slider.min) / (slider.max - slider.min) * sliderWidth;
+            sliderValue.style.left = `${valuePosition}px`;
+            userInputs.age = slider.value;
+        }
+
+        function selectOption(button, key, value) {
+            // Remove "active" class from all sibling buttons
+            const buttons = button.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Add "active" class to the clicked button
+            button.classList.add('active');
+
+            // Save the value
+            userInputs[key] = value;
+            console.log(`Saved ${key}: ${value}`);
+        }
+
+        async function generateStory() {
+            userInputs.memoryDescription = document.getElementById('memoryDescription').value;
+
+            const prompt = `You are a creative and empathetic storyteller tasked with crafting a highly emotional and immersive narrative...`; // Full prompt code
+            // API call logic
         }
     </script>
 </body>
