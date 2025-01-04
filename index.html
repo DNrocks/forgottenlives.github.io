@@ -183,11 +183,59 @@
         }
 
         async function generateStory() {
+    // Capture the memory description input by the user
             userInputs.memoryDescription = document.getElementById('memoryDescription').value;
 
-            const prompt = `You are a creative and empathetic storyteller tasked with crafting a highly emotional and immersive narrative...`; // Full prompt code
-            // API call logic
+    // Construct the prompt for the API
+            const prompt = `
+                Based on the following inputs, create a highly emotional and immersive narrative:
+                Age: ${userInputs.age}
+                Memory Emotion: ${userInputs.memoryEmotion}
+                Satisfaction with Outcome: ${userInputs.satisfaction}
+                Desire to Reconnect: ${userInputs.desire}
+                Description: ${userInputs.memoryDescription}
+            `;
+
+    // API details
+            const apiKey = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+            try {
+        // Make the API call
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                body: JSON.stringify({
+                    prompt,
+                    }),
+                });
+
+        // Check if the response is successful
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+        // Parse the API response
+            const data = await response.json();
+            console.log("API Response:", data);
+
+        // Extract and display the story
+            const story = data?.contents?.[0]?.parts?.[0]?.text || 'No story generated.';
+            alert(`Generated Story:\n\n${story}`);
+            } catch (error) {
+            console.error("Error during API call:", error);
+
+        // Provide a fallback story in case of an error
+            const fallbackStory = `
+                It seems there was an issue generating your story. Here’s a placeholder story:
+                "In a quiet corner of your past, this memory lives on, vivid and full of meaning. Even though it's been forgotten, it still shapes who you are today."
+            `;
+            alert(`Fallback Story:\n\n${fallbackStory}`);
+            }
         }
+
     </script>
 </body>
 </html>
