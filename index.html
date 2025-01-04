@@ -25,11 +25,10 @@
 
         .candle {
             cursor: pointer;
-            width: 60px;
-            height: 100px;
-            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Small_flame_candle.jpg/220px-Small_flame_candle.jpg') no-repeat center;
-            background-size: cover;
+            font-size: 2rem;
+            background: none;
             border: none;
+            color: #fff;
         }
 
         .slider {
@@ -49,14 +48,14 @@
     <div id="screen1" class="container">
         <h1>Recall a Forgotten Memory</h1>
         <p>Think about something lost amidst life: a book, friend, toy, goal, or anything else. Let it come to mind.</p>
-        <button class="candle" onclick="nextScreen(2)"></button>
+        <button class="candle" onclick="nextScreen(2)">🔥</button>
     </div>
 
     <div id="screen2" class="container hidden">
         <h1>When Did This Happen?</h1>
         <p>Move the slider to indicate the age when this forgotten thing occurred.</p>
         <input type="range" class="slider" min="0" max="100" step="1" value="25">
-        <button class="candle" onclick="nextScreen(3)"></button>
+        <button class="candle" onclick="nextScreen(3)">🔥</button>
     </div>
 
     <div id="screen3" class="container hidden">
@@ -83,14 +82,14 @@
                 <option value="no">No</option>
             </select>
         </div>
-        <button class="candle" onclick="nextScreen(4)"></button>
+        <button class="candle" onclick="nextScreen(4)">🔥</button>
     </div>
 
     <div id="screen4" class="container hidden">
         <h1>Describe Your Memory</h1>
         <p>Share as much detail as you can, including trivial aspects of the memory.</p>
         <textarea rows="6" cols="50" placeholder="Write about your memory here..."></textarea>
-        <button class="candle" onclick="alert('Story generation will happen next!')"></button>
+        <button class="candle" onclick="alert('Story generation will happen next!')">🔥</button>
     </div>
 
     <script>
