@@ -1,254 +1,398 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of Forgotten Lives</title>
+    <title>MBTI Quiz with Historical Match</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, #1e3c72, #2a5298);
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
+        .quiz-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        .candle {
-            cursor: pointer;
-            font-size: 2rem;
-            background: none;
-            border: none;
-            color: #fff;
-        }
-
-        .slider-container {
-            position: relative;
-            width: 80%;
-        }
-
-        .slider {
-            width: 100%;
-        }
-
-        .slider-value {
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .questions-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-            width: 80%;
-        }
-
-        .questions-container div {
-            text-align: center;
-        }
-
-        .questions-container button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            background: #3b5998;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        .questions-container button:hover {
-            background: #1e3c72;
-        }
-
-        .questions-container button.active {
-            background: #ff9800; /* Highlight color for selected button */
-            color: #000; /* Text color for visibility */
-        }
-
-        .hidden {
+        .question {
             display: none;
+            margin: 20px 0;
         }
-
-        textarea {
-            width: 80%;
-            padding: 10px;
-            font-size: 1rem;
+        .question.active {
+            display: block;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
             border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            display: none;
+            margin-top: 20px;
+        }
+        #visualization {
+            margin-top: 20px;
+        }
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .radio-option {
+            text-align: center;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #historical-match {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #eee;
             border-radius: 5px;
-            margin-bottom: 20px;
+            margin: 10px 0;
+        }
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <div id="screen1" class="container">
-        <h1>Recall a Forgotten Memory</h1>
-        <p>Think about something lost amidst life: a book, friend, toy, goal, or anything else. Let it come to mind.</p>
-        <button class="candle" onclick="nextScreen(2)">🔥</button>
-    </div>
-
-    <div id="screen2" class="container hidden">
-        <h1>When Did This Happen?</h1>
-        <p>Move the slider to indicate the age when this forgotten thing occurred.</p>
-        <div class="slider-container">
-            <span id="sliderValue" class="slider-value">25</span>
-            <input type="range" id="ageSlider" class="slider" min="0" max="100" step="1" value="25" oninput="updateSliderValue()">
+    <div class="quiz-container">
+        <div id="personal-info">
+            <h2>Personal Information</h2>
+            <input type="text" id="name" placeholder="Your name" required><br>
+            <input type="number" id="age" placeholder="Your age" required><br>
+            <input type="text" id="city" placeholder="Your city" required><br>
+            <input type="text" id="goals" placeholder="What are your main goals in life?" required><br>
+            <button onclick="startQuiz()">Start Quiz</button>
         </div>
-        <button class="candle" onclick="nextScreen(3)">🔥</button>
-    </div>
 
-    <div id="screen3" class="container hidden">
-        <h1>Tell Us About the Memory</h1>
-        <p>Answer the following questions about your memory:</p>
-        <div class="questions-container">
-            <div>
-                <p>Is it a happy memory?</p>
-                <button onclick="selectOption(this, 'memoryEmotion', 'Happy')">Yes</button>
-                <button onclick="selectOption(this, 'memoryEmotion', 'Not Happy')">No</button>
+        <div id="quiz" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
             </div>
-            <div>
-                <p>Are you satisfied with the outcome?</p>
-                <button onclick="selectOption(this, 'satisfaction', 'Satisfied')">Yes</button>
-                <button onclick="selectOption(this, 'satisfaction', 'Not Satisfied')">No</button>
+            <div class="question active" data-dimension="EI">
+                <h3>Question 1: How do you prefer to spend your free time?</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q1" value="E">
+                        <label>At social gatherings</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q1" value="I">
+                        <label>In quiet solitude</label>
+                    </div>
+                </div>
             </div>
-            <div>
-                <p>Do you wish it was still a part of your life?</p>
-                <button onclick="selectOption(this, 'desire', 'Yes')">Yes</button>
-                <button onclick="selectOption(this, 'desire', 'No')">No</button>
+
+            <div class="question" data-dimension="EI">
+                <h3>Question 2: When facing a problem, you typically:</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q2" value="E">
+                        <label>Discuss it with others</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q2" value="I">
+                        <label>Think it through alone</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" data-dimension="SN">
+                <h3>Question 3: When learning something new, you prefer:</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q3" value="S">
+                        <label>Concrete, practical examples</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q3" value="N">
+                        <label>Abstract theories and concepts</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" data-dimension="SN">
+                <h3>Question 4: When reading, you prefer:</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q4" value="S">
+                        <label>Detailed descriptions</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q4" value="N">
+                        <label>Metaphorical language</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" data-dimension="TF">
+                <h3>Question 5: When making decisions, you primarily consider:</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q5" value="T">
+                        <label>Logic and facts</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q5" value="F">
+                        <label>People and emotions</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" data-dimension="TF">
+                <h3>Question 6: In a group project, you focus more on:</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q6" value="T">
+                        <label>Getting the task done efficiently</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q6" value="F">
+                        <label>Maintaining group harmony</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" data-dimension="JP">
+                <h3>Question 7: How do you prefer to plan your day?</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q7" value="J">
+                        <label>Structured schedule</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q7" value="P">
+                        <label>Flexible and spontaneous</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" data-dimension="JP">
+                <h3>Question 8: When working on a project, you prefer to:</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="q8" value="J">
+                        <label>Follow a clear plan</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="q8" value="P">
+                        <label>Adapt as you go</label>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="nextQuestion()">Next</button>
+        </div>
+
+        <div class="result" id="result">
+            <h2>Your MBTI Type: <span id="mbti-type"></span></h2>
+            <div id="visualization"></div>
+            <div id="historical-match">
+                <h3>Loading your historical figure match...</h3>
             </div>
         </div>
-        <button class="candle" onclick="nextScreen(4)">🔥</button>
-    </div>
-
-    <div id="screen4" class="container hidden">
-        <h1>Describe Your Memory</h1>
-        <p>Share as much detail as you can, including trivial aspects of the memory.</p>
-        <textarea id="memoryDescription" rows="6" cols="50" placeholder="Write about your memory here..."></textarea>
-        <button class="candle" onclick="generateStory()">🔥</button>
     </div>
 
     <script>
-        const userInputs = {
-            age: null,
-            memoryEmotion: null,
-            satisfaction: null,
-            desire: null,
-            memoryDescription: null
+        let currentQuestion = 0;
+        let answers = {};
+        let mbtiDimensions = {
+            EI: { E: 0, I: 0 },
+            SN: { S: 0, N: 0 },
+            TF: { T: 0, F: 0 },
+            JP: { J: 0, P: 0 }
         };
 
-        function nextScreen(screenNumber) {
-            const screens = document.querySelectorAll('.container');
-            screens.forEach(screen => screen.classList.add('hidden'));
-            document.getElementById(`screen${screenNumber}`).classList.remove('hidden');
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / 8) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
         }
 
-        function updateSliderValue() {
-            const slider = document.getElementById('ageSlider');
-            const sliderValue = document.getElementById('sliderValue');
-            sliderValue.textContent = slider.value;
-            const sliderContainer = slider.parentElement;
-            const sliderWidth = slider.offsetWidth;
-            const valuePosition = (slider.value - slider.min) / (slider.max - slider.min) * sliderWidth;
-            sliderValue.style.left = `${valuePosition}px`;
-            userInputs.age = slider.value;
+        function startQuiz() {
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const city = document.getElementById('city').value;
+            const goals = document.getElementById('goals').value;
+
+            if (!name || !age || !city || !goals) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            document.getElementById('personal-info').style.display = 'none';
+            document.getElementById('quiz').style.display = 'block';
+            updateProgress();
         }
 
-        function selectOption(button, key, value) {
-            // Remove "active" class from all sibling buttons
-            const buttons = button.parentElement.querySelectorAll('button');
-            buttons.forEach(btn => btn.classList.remove('active'));
+        function nextQuestion() {
+            const questions = document.getElementsByClassName('question');
+            const currentQ = questions[currentQuestion];
+            const radios = currentQ.getElementsByTagName('input');
+            let answered = false;
 
-            // Add "active" class to the clicked button
-            button.classList.add('active');
-
-            // Save the value
-            userInputs[key] = value;
-            console.log(`Saved ${key}: ${value}`);
-        }
-
-        async function generateStory() {
-            userInputs.memoryDescription = document.getElementById('memoryDescription').value;
-        
-            const requestBody = {
-                prompt: {
-                        text: `
-                            Based on the following inputs, create a highly emotional and immersive narrative:
-                            Age: ${userInputs.age}
-                            Memory Emotion: ${userInputs.memoryEmotion}
-                            Satisfaction with Outcome: ${userInputs.satisfaction}
-                            Desire to Reconnect: ${userInputs.desire}
-                            Description: ${userInputs.memoryDescription}
-                                
-                                                    Start with a gentle, nostalgic introduction that brings the user into the context of their memory.
-                                Create a utopian world where the memory has been preserved or revived in a way that aligns with the user's emotional state and desires.
-                                Include symbolic elements from the user’s description, even seemingly trivial ones, to add depth and connection.
-                                Use poetic and evocative language to engage the user’s senses and emotions.
-                                Conclude with a powerful message or insight that leaves the user feeling hopeful, reflective, or at peace with their memory.
-                                Example Style:
-                                
-                                If the memory is about a lost friend: Imagine a world where the user stumbles upon a timeless garden where every forgotten connection blossoms anew.
-                                If the memory is about a toy: Picture a fantastical land where the toy transforms into a companion guiding the user through adventures they always dreamed of.
-                                Output Format:
-                                
-                                Title: A short, impactful title for the story.
-                                Narrative: A 2-3 paragraph story that fulfills the guidelines.
-                                Be creative, sensitive, and ensure the story feels deeply personal and meaningful to the user."
-                                
-                                
-                                Also in the code, instead of the two questions "Is it a sad memory" and "IS it a happy memory", just edit into one question - "Is it a happy memory?" with choices yes and no.  
-                        `
+            for (let radio of radios) {
+                if (radio.checked) {
+                    answered = true;
+                    const dimension = currentQ.dataset.dimension;
+                    const value = radio.value;
+                    mbtiDimensions[dimension][value]++;
+                    break;
                 }
-            };
-        
-            const apiKey = 'AIzaSyBtDZvBHsHfe17NvCmsSJDjL663gS63ztk'; // Replace with your API key
-            const url = `https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generateText?key=${apiKey}`;
-        
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody),
-                });
-        
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} - ${response.statusText}`);
-                }
-        
-                const rawResponse = await response.text();
-                console.log("Raw Response:", rawResponse);
-                const data = JSON.parse(rawResponse);
-        
-                const story = data.generatedText || 'No story generated.';
-                alert(`Generated Story:\n\n${story}`);
-            } catch (error) {
-                console.error("Error:", error);
-        
-                const fallbackStory = `
-                    It seems there was an issue generating your story. Here’s a placeholder story:
-                    "In a quiet corner of your past, this memory lives on, vivid and full of meaning. Even though it's been forgotten, it still shapes who you are today."
-                `;
-                alert(`Fallback Story:\n\n${fallbackStory}`);
+            }
+
+            if (!answered) {
+                alert('Please select an answer before continuing');
+                return;
+            }
+
+            currentQ.classList.remove('active');
+            currentQuestion++;
+            updateProgress();
+
+            if (currentQuestion < questions.length) {
+                questions[currentQuestion].classList.add('active');
+            } else {
+                showResults();
             }
         }
 
+        async function showResults() {
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
 
+            const type = [
+                mbtiDimensions.EI.E > mbtiDimensions.EI.I ? 'E' : 'I',
+                mbtiDimensions.SN.S > mbtiDimensions.SN.N ? 'S' : 'N',
+                mbtiDimensions.TF.T > mbtiDimensions.TF.F ? 'T' : 'F',
+                mbtiDimensions.JP.J > mbtiDimensions.JP.P ? 'J' : 'P'
+            ].join('');
 
+            document.getElementById('mbti-type').textContent = type;
+
+            // Create p5.js visualization
+            new p5(createSketch(mbtiDimensions));
+
+            // Get user info
+            const goals = document.getElementById('goals').value;
+            const age = document.getElementById('age').value;
+
+            // Prepare prompt for Gemini
+            const prompt = `Given a person with the following characteristics:
+            - MBTI Type: ${type}
+            - Age: ${age}
+            - Life Goals: ${goals}
+
+            Please identify and explain which historical figure best matches this personality profile, focusing on the MBTI type and life goals alignment. Provide a brief explanation of why they match.`;
+
+            try {
+                const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBiu0u08-0y7WqAFQgI1N4gTp3pN3uZSP0", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const matchText = data.candidates[0].content.parts[0].text;
+
+                // Display the result
+                document.getElementById('historical-match').innerHTML = `
+                    <h3>Your Historical Figure Match</h3>
+                    <div style="white-space: pre-line">${matchText}</div>
+                `;
+            } catch (error) {
+                document.getElementById('historical-match').innerHTML = `
+                    <h3>Historical Figure Match</h3>
+                    <p>Sorry, we couldn't fetch your historical figure match at this time. Please try again later.</p>
+                `;
+                console.error('Error:', error);
+            }
+        }
+
+        function createSketch(dimensions) {
+            return (p) => {
+                p.setup = () => {
+                    const canvas = p.createCanvas(600, 400);
+                    canvas.parent('visualization');
+                    p.background(255);
+                    drawSpectrum();
+                };
+
+                function drawSpectrum() {
+                    const dimensionsList = [
+                        { name: 'I/E', values: { I: dimensions.EI.I, E: dimensions.EI.E } },
+                        { name: 'N/S', values: { N: dimensions.SN.N, S: dimensions.SN.S } },
+                        { name: 'F/T', values: { F: dimensions.TF.F, T: dimensions.TF.T } },
+                        { name: 'P/J', values: { P: dimensions.JP.P, J: dimensions.JP.J } }
+                    ];
+
+                    const barHeight = 40;
+                    const spacing = 80;
+                    const startY = 50;
+
+                    dimensionsList.forEach((dim, i) => {
+                        const y = startY + (i * spacing);
+                        
+                        // Draw bar background
+                        p.fill(220);
+                        p.rect(100, y, 400, barHeight);
+
+                        // Calculate position (inverting the percentage)
+                        const total = dim.values[Object.keys(dim.values)[0]] + dim.values[Object.keys(dim.values)[1]];
+                        const percentage = dim.values[Object.keys(dim.values)[0]] / total;
+                        const markerX = 500 - (percentage * 400);
+
+                        // Draw marker
+                        p.fill(0, 120, 255);
+                        p.circle(markerX, y + barHeight/2, 20);
+
+                        // Draw labels
+                        p.textAlign(p.RIGHT);
+                        p.textSize(16);
+                        p.fill(0);
+                        p.text(Object.keys(dim.values)[0], 90, y + barHeight/2 + 5);
+                        
+                        p.textAlign(p.LEFT);
+                        p.text(Object.keys(dim.values)[1], 510, y + barHeight/2 + 5);
+
+                        // Draw dimension name
+                        p.textAlign(p.CENTER);
+                        p.text(dim.name, 300, y - 10);
+                    });
+                }
+            };
+        }
     </script>
 </body>
 </html>
